@@ -11,11 +11,17 @@ datoteku u xml
 """
 
 import subprocess
+from bs4 import BeautifulSoup
 
 
 cpuz = "cpuz_x32.exe"
-prm = "-html=system-report.html"
+param = "-html=system-report"
 
-# Pozovi CPU-Z i kreiraj html
-subprocess.call([cpuz, prm])
+# Pozovi CPU-Z i kreiraj htm datoteku
+subprocess.call([cpuz, param])
 
+# Pretvori html u xml
+with open("system-report.htm") as f:
+    soup = BeautifulSoup(f, "html.parser")
+with open('system-report.xml', 'w') as g:
+    print(soup.prettify(), file=g)

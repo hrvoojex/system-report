@@ -12,16 +12,25 @@ datoteku u xml
 
 import subprocess
 from bs4 import BeautifulSoup
+import os
 
+
+# Saznaje ime lokacije ili ime računala radi imenovanja datoteke
+for root, dirs, files in os.walk("C:\PCT"):
+    for file in files:
+        if file.endswith(".who"):
+            #print(os.path.join(root, file))
+            # Odsjeci nastavak filea u C:\PCT\store_name.who na samo store_name
+            store_name = file[0:-4]
 
 cpuz = "cpuz_x32.exe"
-param = "-html=system-report"
+param = "-html=" + store_name
 
-# Pozovi CPU-Z i kreiraj htm datoteku
+# Pozovi CPU-Z i kreiraj htm datoteku naziva u 'param' varijabli
 subprocess.call([cpuz, param])
 
 # Pretvori html u xml
-with open("system-report.htm") as f:
+with open(store_name + ".htm") as f:
     soup = BeautifulSoup(f, "html.parser")
-with open('system-report.xml', 'w') as g:
+with open(store_name + ".xml", 'w') as g:
     print(soup.prettify(), file=g)

@@ -21,6 +21,17 @@ import sys
 from shutil import copyfile
 
 
+# If there is command line argument, the first one is server ip, then username and password
+if len(sys.argv) > 3:
+    ftpserver_ip = sys.argv[1]
+    username = sys.argv[2]
+    password = sys.argv[3]
+
+else:
+    print('Not enough arguments. Server, username and password needed!')
+    sys.exit()
+
+
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
@@ -53,11 +64,6 @@ subprocess.call([cpuz, param])
 #     copyfile(fname, '\\\\192.168.0.117\\Public\\cpuz\\' + fname)
 # except Exception as e:
 #     pass
-
-# Send the file over ftp
-ftpserver_ip = '192.168.0.232'
-username = 'ftp_test'
-password = 'ftp_test'
 
 def ftpsend(upload_file):
     try:

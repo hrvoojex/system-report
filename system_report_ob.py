@@ -18,18 +18,6 @@ import datetime
 import ftplib
 import os
 import sys
-from shutil import copyfile
-
-
-# If there is command line argument, the first one is server ip, then username and password
-if len(sys.argv) > 3:
-    ftpserver_ip = sys.argv[1]
-    username = sys.argv[2]
-    password = sys.argv[3]
-
-else:
-    print('Not enough arguments. Server, username and password needed!')
-    sys.exit()
 
 
 def is_admin():
@@ -38,57 +26,54 @@ def is_admin():
     except:
         return False
 
+if is_admin():
 
-#if is_admin():
-# Code of your program here
-# Saznaje ime lokacije ili ime računala radi imenovanja datoteke
-# Prvo postavi da se file zove kao lokalno računalo
-store_name = socket.gethostname()
-for root, dirs, files in os.walk("C:\\PCT"):
-    # Onda potraži datoteku C:\PCT\ime_prodavaonice.who ako ima pa tako imenuj
-    for file in files:
-        if file.endswith(".who") or file.endswith(".WHO"):
-            # Odsjeci nastavak filea u C:\PCT\store_name.who na samo store_name
-            store_name = file[0:-4]
+    ftpserver_ip = input("FTP server IP: ")
+    username = input("FTP server username: ")
+    password = input("FTP server password: ")
 
-# Varijable programa koji treba izvesti i datoteka u koju se sprema rezultat
-cpuz = "cpuz_x32.exe"
-param = "-txt=" + store_name
-fname = store_name + ".txt"
+    # Saznaje ime lokacije ili ime računala radi imenovanja datoteke
+    # Prvo postavi da se file zove kao lokalno računalo
+    store_name = socket.gethostname()
+    for root, dirs, files in os.walk("C:\\PCT"):
+        # Onda potraži datoteku C:\PCT\ime_prodavaonice.who ako ima pa tako imenuj
+        for file in files:
+            if file.endswith(".who") or file.endswith(".WHO"):
+                # Odsjeci nastavak filea u C:\PCT\store_name.who na samo store_name
+                store_name = file[0:-4]
 
-# Pozovi CPU-Z i kreiraj txt datoteku naziva u 'param' varijabli
-subprocess.call([cpuz, param])
+    # Varijable programa koji treba izvesti i datoteka u koju se sprema rezultat
+    cpuz = "cpuz_x32.exe"
+    param = "-txt=" + store_name
+    fname = store_name + ".txt"
 
-# # Kopiraj datoteke u C:\PCT\ i u datoteku anketa.txt za slanje na server
-# try:
-#     copyfile(fname, '\\\\192.168.0.117\\Public\\cpuz\\' + fname)
-# except Exception as e:
-#     pass
+    # Pozovi CPU-Z i kreiraj txt datoteku naziva u 'param' varijabli
+    subprocess.call([cpuz, param])
 
-def ftpsend(upload_file):
-    try:
-        # ftp server running on 'ftpserver_ip' on port 21
-        session = ftplib.FTP(ftpserver_ip, username, password)
-        file = open(upload_file, 'rb')
-        session.storbinary('STOR ' + upload_file, file)
-        file.close()
-        session.quit()
-    except Exception as err:
-        with open('error.log', 'w') as ferr:
-            print(err)
-            ferr.write(str(datetime.datetime.now()))
-            ferr.write('\n')
-            ferr.write(str(err))
-        return None
 
-    with open('OK.log', 'w') as fok:
-        fok.write(str(datetime.datetime.now()))
-        fok.write(" OK")
-        print(str(datetime.datetime.now()), "OK")
+    def ftpsend(upload_file):
+        try:
+            # ftp server running on 'ftpserver_ip' on port 21
+            session = ftplib.FTP(ftpserver_ip, username, password)
+            file = open(upload_file, 'rb')
+            session.storbinary('STOR ' + upload_file, file)
+            file.close()
+            session.quit()
+        except Exception as err:
+            with open('error.log', 'w') as ferr:
+                print(err)
+                ferr.write(str(datetime.datetime.now()))
+                ferr.write('\n')
+                ferr.write(str(err))
+            return None
 
-ftpsend(fname)
+        with open('OK.log', 'w') as fok:
+            fok.write(str(datetime.datetime.now()))
+            fok.write(" OK")
+            print(str(datetime.datetime.now()), "OK")
 
-# else:
-#     # Re-run the program with admin rights
-#     ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, "", None, 1)
+    ftpsend(fname)
 
+else:
+    # Re-run the program with admin rights
+    ctypes.windll.shell32.ShellExecuteW(None, "runas", sys.executable, __file__, None, 1)
